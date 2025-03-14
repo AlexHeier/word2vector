@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 )
 
 func DownloadBook(startID, endID int, folderPath string) int {
@@ -53,4 +54,21 @@ func DownloadBook(startID, endID int, folderPath string) int {
 	}
 
 	return errors
+}
+
+func deleteFolderContents(folderPath string) error {
+	entries, err := os.ReadDir(folderPath)
+	if err != nil {
+		return err
+	}
+
+	for _, entry := range entries {
+		entryPath := filepath.Join(folderPath, entry.Name())
+		err = os.RemoveAll(entryPath) // Removes both files and subdirectories
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
