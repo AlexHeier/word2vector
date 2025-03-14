@@ -244,12 +244,27 @@ func (w2v *Word2Vec) preprocessText(folderPath string) (allWords []string, err e
 		return nil, err
 	}
 
-	w2v.Vocab = append(w2v.Vocab, uniqueWords...)
+	w2v.AddUniqueWords(uniqueWords)
 
 	return allWords, nil
 }
 
+func (w2v *Word2Vec) AddUniqueWords(uniqueWords []string) {
+	for _, word := range uniqueWords {
+		if _, exists := w2v.Vectors[word]; !exists {
+			w2v.Vocab = append(w2v.Vocab, word)
+			vector := make([]float64, vectorSize)
+			for i := 0; i < vectorSize; i++ {
+				vector[i] = rand.Float64() * 0.1
+			}
+			w2v.Vectors[word] = vector
+		}
+	}
+}
+
 func main() {
+
+	var totalWords int
 
 	if len(os.Args) < 2 {
 		fmt.Print("Please provide the number of threads to use\n")
@@ -278,7 +293,7 @@ func main() {
 			}
 		}
 
-		fmt.Printf("\nDownloaded books %d to %d", first, last)
+		fmt.Printf("\nDownloaded books %d to %d\n", first, last)
 
 		// Initialize Word2Vec model
 		w2v := Word2Vec{
@@ -302,9 +317,11 @@ func main() {
 		w2v.TrainModel(allWords, 0.1, 10, threads) // Learning rate, epochs and threads
 
 		topN := 5
-		word := "you"
+		word := "fast"
 
-		fmt.Print("Found ", len(w2v.Vocab), " unique words\nFound ", len(allWords), " words in total\n")
+		totalWords += len(allWords)
+
+		fmt.Print("Found ", len(w2v.Vocab), " unique words\nFound ", totalWords, " words in total\nWords in this iteration: ", len(allWords))
 
 		similarWords := findMostSimilarWords(word, w2v.Vectors, topN)
 
