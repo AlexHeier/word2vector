@@ -6,6 +6,7 @@ import (
 	"runtime"
 	"strconv"
 	"sync"
+	"time"
 )
 
 func main() {
@@ -27,16 +28,19 @@ func main() {
 		M:       sync.Mutex{},
 	}
 
+	runningTime := time.Now()
+
 	var totalWords int
 
 	runtime.GOMAXPROCS(runtime.NumCPU()) // max out all cores
 
 	for i := 0; i < 750; i++ {
+		loopTime := time.Now()
 
 		deleteFolderContents(trainingdata)
 
 		first := (i * 100) + 1
-		last := first + 99
+		last := first + 1
 
 		if downloadBooks {
 			errorCount := DownloadBook(first, last, trainingdata)
@@ -51,9 +55,12 @@ func main() {
 
 		allWords, err := w2v.preprocessText(trainingdata)
 		if err != nil {
-			fmt.Println("Error preprocessing text:", err)
+			fmt.Printf("Error preprocessing text: %v\n", err)
 			return
 		}
+
+		totalWords += len(allWords) * epochs
+		fmt.Printf("Found %d unique words\nFound %d words in total\nWords in this iteration: %d\n", len(w2v.Vocab), totalWords, len(allWords))
 
 		// Train the model
 		w2v.TrainModel(allWords, trainingRate, epochs, threads) // Learning rate, epochs and threads
@@ -61,14 +68,11 @@ func main() {
 		topN := 5
 		word := "fast"
 
-		totalWords += len(allWords) * epochs
-
-		fmt.Print("Found ", len(w2v.Vocab), " unique words\nFound ", totalWords, " words in total\nWords in this iteration: ", len(allWords))
-
 		similarWords := findMostSimilarWords(word, w2v.Vectors, topN)
-		fmt.Printf("\nTop %d words most similar to '%s': %v", topN, word, similarWords)
+		fmt.Printf("Top %d words most similar to '%s': %v", topN, word, similarWords)
 
 		result := findAnalogy("him", "man", "woman", w2v.Vectors, topN)
-		fmt.Printf("\nAnalogy Test (him - man + woman): %v\n\n", result)
+		fmt.Printf("\nAnalogy Test (him - man + woman): %v", result)
+		fmt.Printf("\nTotal run time: %v\nEstimated time left: %v\n\n", time.Since(runningTime), time.Duration(time.Since(loopTime).Seconds()*float64(750-i)*float64(time.Second)))
 	}
 }
