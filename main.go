@@ -56,12 +56,12 @@ func main() {
 		}
 
 		// Train the model
-		w2v.TrainModel(allWords, 0.01, 10, threads) // Learning rate, epochs and threads
+		w2v.TrainModel(allWords, trainingRate, epochs, threads) // Learning rate, epochs and threads
 
 		topN := 5
 		word := "fast"
 
-		totalWords += len(allWords)
+		totalWords += len(allWords) * epochs
 
 		fmt.Print("Found ", len(w2v.Vocab), " unique words\nFound ", totalWords, " words in total\nWords in this iteration: ", len(allWords))
 
