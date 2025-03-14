@@ -29,16 +29,6 @@ type Word2Vec struct {
 	M       sync.Mutex
 }
 
-func (w2v *Word2Vec) InitializeVectors() {
-	for _, word := range w2v.Vocab {
-		vector := make([]float64, vectorSize)
-		for i := 0; i < vectorSize; i++ {
-			vector[i] = rand.Float64() * 0.1
-		}
-		w2v.Vectors[word] = vector
-	}
-}
-
 func (w2v *Word2Vec) TrainModel(words []string, learningRate float64, epochs, workers int) { // words in the list of words, learningRate is the learning rate, epochs is the number of loops to train the model
 	chunkSize := len(words) / workers
 	split := make([][]string, workers)
@@ -249,6 +239,9 @@ func (w2v *Word2Vec) preprocessText(folderPath string) (allWords []string, err e
 	return allWords, nil
 }
 
+/*
+Checks if words from an array of words are within the vocabulary. If not, adds them to the vocabulary and initializes their vectors.
+*/
 func (w2v *Word2Vec) AddUniqueWords(uniqueWords []string) {
 	for _, word := range uniqueWords {
 		if _, exists := w2v.Vectors[word]; !exists {
@@ -309,9 +302,6 @@ func main() {
 			fmt.Println("Error preprocessing text:", err)
 			return
 		}
-
-		// Initialize vectors
-		w2v.InitializeVectors()
 
 		// Train the model
 		w2v.TrainModel(allWords, 0.1, 10, threads) // Learning rate, epochs and threads
