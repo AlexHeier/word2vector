@@ -36,6 +36,7 @@ func (w2v *Word2Vec) TrainModel(words []string, learningRate float64, epochs, wo
 	for epoch := 0; epoch < epochs; epoch++ {
 		startTime := time.Now()
 		var wg sync.WaitGroup
+		totalLoss := 0.0
 
 		for w := 0; w < workers; w++ {
 			start := w * chunkSize
@@ -54,8 +55,9 @@ func (w2v *Word2Vec) TrainModel(words []string, learningRate float64, epochs, wo
 						if i != j {
 							context := wordsSubset[j]
 							w2v.M.Lock()
-							w2v.UpdateVectors(target, context, learningRate)
+							loss := w2v.UpdateVectors(target, context, learningRate)
 							w2v.M.Unlock()
+							totalLoss += loss
 
 						}
 					}
@@ -66,7 +68,7 @@ func (w2v *Word2Vec) TrainModel(words []string, learningRate float64, epochs, wo
 		w2v.SaveModelBinary(vectors)
 
 		elapsedTime := time.Since(startTime)
-		fmt.Printf("\nEpoch %v out %v of took %v seconds", epoch+1, epochs, elapsedTime.Seconds())
+		fmt.Printf("Epoch %v out %v of took %v seconds and had a loss of %v\n", epoch+1, epochs, elapsedTime.Seconds(), totalLoss)
 	}
 }
 
@@ -74,7 +76,7 @@ func sigmoid(x float64) float64 {
 	return 1 / (1 + math.Exp(-x))
 }
 
-func (w2v *Word2Vec) UpdateVectors(target, context string, learningRate float64) error {
+func (w2v *Word2Vec) UpdateVectors(target, context string, learningRate float64) float64 {
 	targetVector, targetExists := w2v.Vectors[target]
 	contextVector, contextExists := w2v.Vectors[context]
 
@@ -104,6 +106,8 @@ func (w2v *Word2Vec) UpdateVectors(target, context string, learningRate float64)
 	probability := sigmoid(dotProduct)
 	errorTerm := 1.0 - probability // Gradient of binary cross-entropy loss
 
+	loss := -math.Log(probability)
+
 	// Update word vectors using gradient descent
 	for i := 0; i < vectorSize; i++ {
 		grad := learningRate * errorTerm
@@ -115,7 +119,7 @@ func (w2v *Word2Vec) UpdateVectors(target, context string, learningRate float64)
 	w2v.Vectors[target] = targetVector
 	w2v.Vectors[context] = contextVector
 
-	return nil
+	return loss
 }
 
 func max(a, b int) int {
@@ -256,9 +260,6 @@ func (w2v *Word2Vec) AddUniqueWords(uniqueWords []string) {
 }
 
 func main() {
-
-	var totalWords int
-
 	if len(os.Args) < 2 {
 		fmt.Print("Please provide the number of threads to use\n")
 		return
@@ -269,6 +270,15 @@ func main() {
 		fmt.Print("Please provide a valid number of threads\n")
 		return
 	}
+
+	// Initialize Word2Vec model
+	w2v := Word2Vec{
+		Vocab:   []string{},
+		Vectors: make(map[string][]float64),
+		M:       sync.Mutex{},
+	}
+
+	var totalWords int
 
 	runtime.GOMAXPROCS(runtime.NumCPU()) // max out all cores
 
@@ -286,14 +296,7 @@ func main() {
 			}
 		}
 
-		fmt.Printf("\nDownloaded books %d to %d\n", first, last)
-
-		// Initialize Word2Vec model
-		w2v := Word2Vec{
-			Vocab:   []string{},
-			Vectors: make(map[string][]float64),
-			M:       sync.Mutex{},
-		}
+		fmt.Printf("\nDownloaded books %d to %d\n\n", first, last)
 
 		w2v.LoadVectorsBinary(vectors)
 
@@ -304,7 +307,7 @@ func main() {
 		}
 
 		// Train the model
-		w2v.TrainModel(allWords, 0.1, 10, threads) // Learning rate, epochs and threads
+		w2v.TrainModel(allWords, 0.01, 10, threads) // Learning rate, epochs and threads
 
 		topN := 5
 		word := "fast"
