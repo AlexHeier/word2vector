@@ -35,8 +35,8 @@ func main() {
 
 		deleteFolderContents(trainingdata)
 
-		first := (i * 1) + 1
-		last := first + 1
+		first := (i * 100) + 1
+		last := first + 99
 
 		if downloadBooks {
 			errorCount := DownloadBook(first, last, trainingdata)
@@ -56,7 +56,7 @@ func main() {
 		}
 
 		// Train the model
-		w2v.TrainModel(allWords, 0.01, 1, threads) // Learning rate, epochs and threads
+		w2v.TrainModel(allWords, 0.01, 10, threads) // Learning rate, epochs and threads
 
 		topN := 5
 		word := "fast"
