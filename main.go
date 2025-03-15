@@ -30,7 +30,7 @@ func main() {
 		fmt.Print("Please provide a valid number of threads\n")
 		return
 	}
-
+	runningTime := time.Now()
 	// Initialize Word2Vec model
 	w2v := Word2Vec{
 		Vocab:          []string{},
@@ -40,13 +40,16 @@ func main() {
 	}
 
 	fmt.Print("Fetching vectors from the database\n")
+
+	go displayTimer()
 	err = w2v.OpenDB()
 	if err != nil {
 		fmt.Printf("Database error: %v\n", err)
 		return
 	}
+	runTimer = false
 
-	runningTime := time.Now()
+	fmt.Printf("Found %d words in the database\nFetching time: %v\n", len(w2v.Vocab), time.Since(runningTime))
 
 	var totalWords int
 
@@ -79,6 +82,9 @@ func main() {
 		totalWords += len(allWords) * epochs
 		fmt.Printf("Found %d unique words\nFound %d words in total\nWords per epoch: %d\n", len(w2v.Vocab), totalWords, len(allWords))
 
+		// Train the model
+		w2v.TrainModel(allWords, trainingRate, epochs, threads) // Learning rate, epochs and threads
+
 		topN := 5
 		word := "fast"
 
@@ -88,10 +94,8 @@ func main() {
 		result := findAnalogy("him", "man", "woman", w2v.Vectors, topN)
 		fmt.Printf("\nAnalogy Test (him - man + woman): %v", result)
 		fmt.Printf("\nTotal run time: %v\nEstimated time left: %v\n\n", time.Since(runningTime), time.Duration(time.Since(loopTime).Seconds()*float64(750-i)*float64(time.Second)))
-		// Train the model
-		w2v.TrainModel(allWords, trainingRate, epochs, threads) // Learning rate, epochs and threads
 
-		if ((i+1)%20 == 0) || (i == loops-1) { // reduesed due to long run time
+		if ((i+1)%15 == 0) || (i == loops-1) { // reduesed due to long run time
 			startTime := time.Now()
 			go UpdateModelInDB(w2v.UpdatedVectors)
 			w2v.UpdatedVectors = make(map[string][]float64)

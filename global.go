@@ -2,7 +2,9 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"sync"
+	"time"
 )
 
 const vectorSize int = 300 // The dementions of the vector
@@ -12,6 +14,8 @@ const downloadBooks bool = true
 const epochs int = 10
 const trainingRate float64 = 0.01
 const loops int = 750
+
+var runTimer bool = true
 
 var dbM sync.Mutex
 var DBCon *sql.DB
@@ -35,4 +39,13 @@ func min(a, b int) int {
 		return a
 	}
 	return b
+}
+
+func displayTimer() {
+	startTime := time.Now()
+	for runTimer {
+		fmt.Printf("\rTime Elapsed: %v\n", time.Since(startTime))
+		time.Sleep(1 * time.Second)
+	}
+	runTimer = true
 }
