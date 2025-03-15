@@ -79,13 +79,6 @@ func main() {
 		totalWords += len(allWords) * epochs
 		fmt.Printf("Found %d unique words\nFound %d words in total\nWords per epoch: %d\n", len(w2v.Vocab), totalWords, len(allWords))
 
-		// Train the model
-		w2v.TrainModel(allWords, trainingRate, epochs, threads) // Learning rate, epochs and threads
-
-		if ((i+1)%10 == 0) || (i == loops-1) { // reduesed due to long run time
-			w2v.UpdateModelInDB()
-		}
-
 		topN := 5
 		word := "fast"
 
@@ -94,6 +87,13 @@ func main() {
 
 		result := findAnalogy("him", "man", "woman", w2v.Vectors, topN)
 		fmt.Printf("\nAnalogy Test (him - man + woman): %v", result)
-		fmt.Printf("\nTotal run time: %v\nEstimated time left: %v\n\n", time.Since(runningTime), time.Duration(time.Since(loopTime).Seconds()*float64(750-i)*float64(time.Second)))
+		fmt.Printf("\nTotal run time: %v\nEstimated time left: %v\n", time.Since(runningTime), time.Duration(time.Since(loopTime).Seconds()*float64(750-i)*float64(time.Second)))
+		// Train the model
+		w2v.TrainModel(allWords, trainingRate, epochs, threads) // Learning rate, epochs and threads
+
+		if ((i+1)%5 == 0) || (i == loops-1) { // reduesed due to long run time
+			w2v.UpdateModelInDB()
+		}
+		print("\n")
 	}
 }
