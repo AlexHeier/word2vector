@@ -2,12 +2,22 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"runtime"
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/joho/godotenv"
 )
+
+func init() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+}
 
 func main() {
 	if len(os.Args) < 2 {
@@ -23,9 +33,17 @@ func main() {
 
 	// Initialize Word2Vec model
 	w2v := Word2Vec{
-		Vocab:   []string{},
-		Vectors: make(map[string][]float64),
-		M:       sync.Mutex{},
+		Vocab:          []string{},
+		Vectors:        make(map[string][]float64),
+		UpdatedVectors: make(map[string][]float64),
+		M:              sync.Mutex{},
+	}
+
+	fmt.Print("Fetching vectors from the database\n")
+	err = w2v.OpenDB()
+	if err != nil {
+		fmt.Printf("Database error: %v\n", err)
+		return
 	}
 
 	runningTime := time.Now()
@@ -34,13 +52,14 @@ func main() {
 
 	runtime.GOMAXPROCS(runtime.NumCPU()) // max out all cores
 
-	for i := 0; i < 750; i++ {
+	for i := 0; i < loops; i++ {
 		loopTime := time.Now()
+		fmt.Printf("\nStarting loop %d out of %d\n", i+1, loops)
 
 		deleteFolderContents(trainingdata)
 
 		first := (i * 100) + 1
-		last := first + 1
+		last := first + 99
 
 		if downloadBooks {
 			errorCount := DownloadBook(first, last, trainingdata)
@@ -51,8 +70,6 @@ func main() {
 
 		fmt.Printf("\nDownloaded books %d to %d\n", first, last)
 
-		w2v.LoadVectorsBinary(vectors)
-
 		allWords, err := w2v.preprocessText(trainingdata)
 		if err != nil {
 			fmt.Printf("Error preprocessing text: %v\n", err)
@@ -60,10 +77,14 @@ func main() {
 		}
 
 		totalWords += len(allWords) * epochs
-		fmt.Printf("Found %d unique words\nFound %d words in total\nWords in this iteration: %d\n", len(w2v.Vocab), totalWords, len(allWords))
+		fmt.Printf("Found %d unique words\nFound %d words in total\nWords per epoch: %d\n", len(w2v.Vocab), totalWords, len(allWords))
 
 		// Train the model
 		w2v.TrainModel(allWords, trainingRate, epochs, threads) // Learning rate, epochs and threads
+
+		if ((i+1)%10 == 0) || (i == loops-1) { // reduesed due to long run time
+			w2v.UpdateModelInDB()
+		}
 
 		topN := 5
 		word := "fast"

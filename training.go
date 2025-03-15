@@ -45,7 +45,6 @@ func (w2v *Word2Vec) TrainModel(words []string, learningRate float64, epochs, wo
 			}(split[w])
 		}
 		wg.Wait()
-		w2v.SaveModelBinary(vectors)
 
 		elapsedTime := time.Since(startTime)
 		fmt.Printf("Epoch %v out %v of took %v seconds and had a loss of %v\n", epoch+1, epochs, elapsedTime.Seconds(), totalLoss)
@@ -98,6 +97,14 @@ func (w2v *Word2Vec) UpdateVectors(target, context string, learningRate float64)
 	// Save the updated vectors
 	w2v.Vectors[target] = targetVector
 	w2v.Vectors[context] = contextVector
+
+	// Save the updated vectors to UpdatedVectors map
+	if targetExists {
+		w2v.UpdatedVectors[target] = targetVector
+	}
+	if contextExists {
+		w2v.UpdatedVectors[context] = contextVector
+	}
 
 	return loss
 }
