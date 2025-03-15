@@ -92,7 +92,10 @@ func main() {
 		w2v.TrainModel(allWords, trainingRate, epochs, threads) // Learning rate, epochs and threads
 
 		if ((i+1)%20 == 0) || (i == loops-1) { // reduesed due to long run time
-			w2v.UpdateModelInDB()
+			startTime := time.Now()
+			go UpdateModelInDB(w2v.UpdatedVectors)
+			w2v.UpdatedVectors = make(map[string][]float64)
+			fmt.Printf("Had to wait %v for before saving vectors\n\n", time.Since(startTime).Seconds())
 		}
 	}
 }

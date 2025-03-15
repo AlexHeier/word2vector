@@ -13,12 +13,14 @@ const epochs int = 10
 const trainingRate float64 = 0.01
 const loops int = 750
 
+var dbM sync.Mutex
+var DBCon *sql.DB
+
 type Word2Vec struct {
 	Vocab          []string
 	Vectors        map[string][]float64
 	UpdatedVectors map[string][]float64
 	M              sync.Mutex
-	DB             *sql.DB
 }
 
 func max(a, b int) int {

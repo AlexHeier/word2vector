@@ -5,20 +5,19 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"time"
 
 	_ "github.com/lib/pq"
 )
 
 // Save word embeddings using HDF5
-func (w2v *Word2Vec) SaveVectors() error {
+func SaveVectors(vectors map[string][]float64) error {
 	// Convert all words and vectors into slices
 	var values []interface{}
 	var placeholders []string
 	i := 1
 
 	// Iterate over all words and vectors in the map
-	for word, vector := range w2v.UpdatedVectors {
+	for word, vector := range vectors {
 		// Convert vector to PostgreSQL array format
 		vecStr := "{" + strings.Trim(strings.Replace(fmt.Sprint(vector), " ", ",", -1), "[]") + "}"
 
@@ -39,7 +38,7 @@ func (w2v *Word2Vec) SaveVectors() error {
 		`, strings.Join(placeholders[:len(values)/2], ", "))
 
 		// Execute the batch insert
-		_, err := w2v.DB.Exec(query, values...)
+		_, err := DBCon.Exec(query, values...)
 		return err
 	}
 
@@ -83,7 +82,7 @@ func (w2v *Word2Vec) OpenDB() error {
 	}
 
 	// Store the connection in the Word2Vec object
-	w2v.DB = db
+	DBCon = db
 
 	// Load vectors from the database
 	err = w2v.loadVectors()
@@ -97,7 +96,7 @@ func (w2v *Word2Vec) OpenDB() error {
 // loadVectors retrieves all vectors and words from the database and populates w2v.Vectors and w2v.Vocab
 func (w2v *Word2Vec) loadVectors() error {
 	// Query to fetch all words and their corresponding vectors
-	rows, err := w2v.DB.Query("SELECT word, vector FROM embeddings")
+	rows, err := DBCon.Query("SELECT word, vector FROM embeddings")
 	if err != nil {
 		return fmt.Errorf("failed to query vectors: %v", err)
 	}
@@ -151,14 +150,12 @@ func parseVector(vectorStr string) []float64 {
 	return vector
 }
 
-func (w2v *Word2Vec) UpdateModelInDB() {
-	startTime := time.Now()
-	fmt.Print("Saving vectors to the database\n")
-	err := w2v.SaveVectors()
+func UpdateModelInDB(vectors map[string][]float64) {
+	dbM.Lock()
+	defer dbM.Unlock()
+	err := SaveVectors(vectors)
 	if err != nil {
 		fmt.Printf("failed to save vectors: %v\n", err)
 	}
-	fmt.Printf("Saving vectors took %v seconds\n\n", time.Since(startTime).Seconds())
 
-	w2v.UpdatedVectors = make(map[string][]float64)
 }
