@@ -158,7 +158,7 @@ func (w2v *Word2Vec) UpdateModelInDB() {
 	if err != nil {
 		fmt.Printf("failed to save vectors: %v\n", err)
 	}
-	fmt.Printf("Saving vectors took %v seconds\n", time.Since(startTime).Seconds())
+	fmt.Printf("Saving vectors took %v seconds\n\n", time.Since(startTime).Seconds())
 
 	w2v.UpdatedVectors = make(map[string][]float64)
 }
