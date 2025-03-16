@@ -6,7 +6,6 @@ import (
 	"os"
 	"runtime"
 	"strconv"
-	"sync"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -32,12 +31,6 @@ func main() {
 	}
 	runningTime := time.Now()
 	// Initialize Word2Vec model
-	w2v := Word2Vec{
-		Vocab:          []string{},
-		Vectors:        make(map[string][]float64),
-		UpdatedVectors: make(map[string][]float64),
-		M:              sync.Mutex{},
-	}
 
 	fmt.Print("Fetching vectors from the database\n")
 
@@ -49,7 +42,7 @@ func main() {
 	}
 	runTimer = false
 
-	fmt.Printf("Found %d words in the database\nFetching time: %v\n", len(w2v.Vocab), time.Since(runningTime))
+	fmt.Printf("\nFound %d words in the database\nFetching time: %v\n", len(w2v.Vocab), time.Since(runningTime))
 
 	var totalWords int
 
@@ -95,11 +88,12 @@ func main() {
 		fmt.Printf("\nAnalogy Test (him - man + woman): %v", result)
 		fmt.Printf("\nTotal run time: %v\nEstimated time left: %v\n\n", time.Since(runningTime), time.Duration(time.Since(loopTime).Seconds()*float64(750-i)*float64(time.Second)))
 
-		if ((i+1)%15 == 0) || (i == loops-1) { // reduesed due to long run time
-			startTime := time.Now()
-			go UpdateModelInDB(w2v.UpdatedVectors)
-			w2v.UpdatedVectors = make(map[string][]float64)
-			fmt.Printf("Had to wait %v for before saving vectors\n\n", time.Since(startTime).Seconds())
+		if i == 0 {
+			go UpdateModelInDB()
 		}
+	}
+
+	for !done {
+		time.Sleep(1 * time.Minute)
 	}
 }
