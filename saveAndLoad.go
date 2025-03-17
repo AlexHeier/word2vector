@@ -19,6 +19,7 @@ func SaveVectors(vectors map[string][]float64) error {
 
 	// Iterate over all words and vectors in the map
 	for word, vector := range vectors {
+
 		// Convert vector to PostgreSQL array format
 		vecStr := "{" + strings.Trim(strings.Replace(fmt.Sprint(vector), " ", ",", -1), "[]") + "}"
 
@@ -43,12 +44,11 @@ func SaveVectors(vectors map[string][]float64) error {
 		return err
 	}
 
-	// Determine the batch size based on PostgreSQL's max parameter limit
-	batchSize := 65535 / 2 // Each word and vector requires 2 parameters (word + vector)
+	batchSize := 30000 // PostgreSQL limit for number of parameters in a query
 
 	// Insert in smaller batches
-	for start := 0; start < len(values); start += batchSize * 2 {
-		end := start + batchSize*2
+	for start := 0; start < len(values); start += batchSize {
+		end := start + batchSize
 		if end > len(values) {
 			end = len(values)
 		}

@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -39,7 +40,11 @@ func (w2v *Word2Vec) preprocessText(folderPath string) (allWords []string, err e
 		for scanner.Scan() {
 			line := scanner.Text()
 
-			// Clean the line: remove punctuation, convert to lowercase, and trim spaces
+			line = strings.ReplaceAll(line, "\n", " ")
+			line = strings.ReplaceAll(line, "\r", " ")
+			line = strings.ReplaceAll(line, "-", " ")
+			line = strings.ReplaceAll(line, "_", " ")
+			line = strings.TrimSpace(line)
 			line = re.ReplaceAllString(line, "")
 			line = strings.ToLower(line)
 			line = strings.TrimSpace(line)
@@ -47,6 +52,11 @@ func (w2v *Word2Vec) preprocessText(folderPath string) (allWords []string, err e
 			// Tokenize the cleaned line into words
 			for _, word := range strings.Fields(line) {
 				if word != "" {
+
+					if _, err := strconv.ParseFloat(word, 64); err == nil { // Skip numbers
+						continue
+					}
+
 					// Append to allWords slice
 					allWords = append(allWords, word)
 
