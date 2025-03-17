@@ -93,7 +93,9 @@ func main() {
 		}
 	}
 
-	for !done {
+	doneMain = true
+
+	for !doneDB {
 		time.Sleep(1 * time.Minute)
 	}
 }

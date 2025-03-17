@@ -153,7 +153,7 @@ func parseVector(vectorStr string) []float64 {
 
 func UpdateModelInDB() {
 	for {
-		if w2v.UpdatedVectors == nil {
+		if w2v.UpdatedVectors == nil && doneMain {
 			break
 		}
 
@@ -162,5 +162,5 @@ func UpdateModelInDB() {
 			fmt.Printf("failed to save vectors: %v\n", err)
 		}
 	}
-	done = true
+	doneDB = true
 }

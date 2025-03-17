@@ -16,7 +16,8 @@ const trainingRate float64 = 0.01
 const loops int = 750
 
 var runTimer bool = true
-var done bool = false
+var doneDB bool = false
+var doneMain bool = false
 
 var DBCon *sql.DB
 
