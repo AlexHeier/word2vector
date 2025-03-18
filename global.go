@@ -10,7 +10,7 @@ import (
 const vectorSize int = 300 // The dementions of the vector
 const windowSize int = 8   // How many words to consider left and right
 const trainingdata string = "./trainingdata"
-const downloadBooks bool = true
+const downloadNewBooks bool = true
 const epochs int = 10
 const trainingRate float64 = 0.01
 const loops int = 750

@@ -52,12 +52,11 @@ func main() {
 		loopTime := time.Now()
 		fmt.Printf("\nStarting loop %d out of %d\n", i+1, loops)
 
-		deleteFolderContents(trainingdata)
-
 		first := (i * 100) + 1
 		last := first + 99
 
-		if downloadBooks {
+		if downloadNewBooks {
+			deleteFolderContents(trainingdata)
 			errorCount := DownloadBook(first, last, trainingdata)
 			if errorCount > 0 {
 				fmt.Printf("\nError downloading %d books", errorCount)
