@@ -66,7 +66,7 @@ func deleteFolderContents(folderPath string) error {
 		entryPath := filepath.Join(folderPath, entry.Name())
 		err = os.RemoveAll(entryPath) // Removes both files and subdirectories
 		if err != nil {
-			return err
+			fmt.Printf("Error deleting file %v\n", entryPath)
 		}
 	}
 
