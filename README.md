@@ -9,7 +9,7 @@ This project is a word to vector embedding training in Golang using the skip-gra
 By default, the training is set up for English. To change the language, modify the following:
 
 - Replace `GetEnglishDictionary()` with a function that retrieves a dictionary for the target language.
-- Modify the `DownloadBook()` function to download books in the desired language.
+- Modify the `DownloadBook()` function to download books in the desired language by changing the language `English` to the target language written in english.
 
 Currently, `DownloadBook()` uses Project Gutenberg, a public domain library. Ensure that the chosen language has sufficient resources available in this library.
 
