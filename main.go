@@ -41,15 +41,15 @@ func main() {
 		return
 	}
 
-	err = GetEnglishDictionary()
-	if err != nil {
-		fmt.Printf("Error fetching vocab: %v\n", err)
-	}
-
 	runTimer = false
-
 	fmt.Printf("\nFound %d words in the database\nFetching time: %v\n", len(w2v.Vocab), time.Since(runningTime))
 
+	if len(w2v.Vocab) == 0 { // If no vectors are found in the database, fetch the english dictionary
+		err = GetEnglishDictionary()
+		if err != nil {
+			fmt.Printf("Error fetching vocab: %v\n", err)
+		}
+	}
 	var totalWords int
 
 	runtime.GOMAXPROCS(runtime.NumCPU()) // max out all cores
