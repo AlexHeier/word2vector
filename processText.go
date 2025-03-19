@@ -10,7 +10,6 @@ import (
 )
 
 func (w2v *Word2Vec) preprocessText(folderPath string) (allWords []string, err error) {
-	uniqueWords := []string{}
 	// Initialize a map to track unique words from Vocab for faster lookup
 	vocabSet := make(map[string]struct{})
 	for _, word := range w2v.Vocab {
@@ -50,19 +49,16 @@ func (w2v *Word2Vec) preprocessText(folderPath string) (allWords []string, err e
 			for _, word := range strings.Fields(line) {
 				if word != "" {
 
-					if _, err := strconv.ParseFloat(word, 64); err == nil { // Skip numbers
+					if _, err := strconv.ParseFloat(word, 64); err == nil {
+						continue
+					}
+
+					if _, exists := vocabSet[word]; !exists {
 						continue
 					}
 
 					// Append to allWords slice
 					allWords = append(allWords, word)
-
-					// Check if the word is already in Vocab (using vocabSet for fast lookup)
-					if _, exists := vocabSet[word]; !exists {
-						// If it's not in vocab, add it to uniqueWords and vocabSet
-						vocabSet[word] = struct{}{}
-						uniqueWords = append(uniqueWords, word)
-					}
 				}
 			}
 		}

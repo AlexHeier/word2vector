@@ -10,6 +10,8 @@ import (
 
 func GetEnglishDictionary() error {
 
+	w2v.Vocab = []string{}
+
 	url := "https://raw.githubusercontent.com/dwyl/english-words/refs/heads/master/words.txt"
 
 	resp, err := http.Get(url)
@@ -29,11 +31,13 @@ func GetEnglishDictionary() error {
 			continue
 		}
 		w2v.Vectors[word] = CreateVector()
+		w2v.Vocab = append(w2v.Vocab, word)
 	}
 
 	if err := scanner.Err(); err != nil {
 		return err
 	}
+	fmt.Print("\n\nFetched dictionary from external source\n")
 
 	return nil
 }
