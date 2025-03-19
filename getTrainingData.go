@@ -6,9 +6,10 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
-func DownloadBook(startID, endID int, folderPath string) int {
+func DownloadBook(startID, endID int, folderPath, language string) int {
 	if startID > endID {
 		temp := startID
 		startID = endID
@@ -41,6 +42,10 @@ func DownloadBook(startID, endID int, folderPath string) int {
 			er = true
 		}
 
+		if !strings.Contains(string(content), fmt.Sprintf("Language: %s", language)) {
+			continue
+		}
+
 		// Create the file to save the book
 		bookFile := fmt.Sprintf("%s/%d.txt", folderPath, bookID)
 		err = os.WriteFile(bookFile, content, 0644)
@@ -52,6 +57,8 @@ func DownloadBook(startID, endID int, folderPath string) int {
 			errors++
 		}
 	}
+
+	fmt.Printf("\nFound %v books with language %v\n", endID-startID+1-errors, language)
 
 	return errors
 }

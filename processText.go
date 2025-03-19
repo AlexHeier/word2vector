@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"math/rand"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -42,8 +41,6 @@ func (w2v *Word2Vec) preprocessText(folderPath string) (allWords []string, err e
 
 			line = strings.ReplaceAll(line, "\n", " ")
 			line = strings.ReplaceAll(line, "\r", " ")
-			line = strings.ReplaceAll(line, "-", " ")
-			line = strings.ReplaceAll(line, "_", " ")
 			line = strings.TrimSpace(line)
 			line = re.ReplaceAllString(line, "")
 			line = strings.ToLower(line)
@@ -82,23 +79,5 @@ func (w2v *Word2Vec) preprocessText(folderPath string) (allWords []string, err e
 		return nil, err
 	}
 
-	w2v.AddUniqueWords(uniqueWords)
-
 	return allWords, nil
-}
-
-/*
-Checks if words from an array of words are within the vocabulary. If not, adds them to the vocabulary and initializes their vectors.
-*/
-func (w2v *Word2Vec) AddUniqueWords(uniqueWords []string) {
-	for _, word := range uniqueWords {
-		if _, exists := w2v.Vectors[word]; !exists {
-			w2v.Vocab = append(w2v.Vocab, word)
-			vector := make([]float64, vectorSize)
-			for i := 0; i < vectorSize; i++ {
-				vector[i] = rand.Float64() * 0.1
-			}
-			w2v.Vectors[word] = vector
-		}
-	}
 }

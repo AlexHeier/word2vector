@@ -40,6 +40,12 @@ func main() {
 		fmt.Printf("Database error: %v\n", err)
 		return
 	}
+
+	err = GetEnglishDictionary()
+	if err != nil {
+		fmt.Printf("Error fetching vocab: %v\n", err)
+	}
+
 	runTimer = false
 
 	fmt.Printf("\nFound %d words in the database\nFetching time: %v\n", len(w2v.Vocab), time.Since(runningTime))
@@ -57,13 +63,11 @@ func main() {
 
 		if downloadNewBooks {
 			deleteFolderContents(trainingdata)
-			errorCount := DownloadBook(first, last, trainingdata)
+			errorCount := DownloadBook(first, last, trainingdata, "English") // Langaue written in english with capital first letter
 			if errorCount > 0 {
 				fmt.Printf("\nError downloading %d books", errorCount)
 			}
 		}
-
-		fmt.Printf("\nDownloaded books %d to %d\n", first, last)
 
 		allWords, err := w2v.preprocessText(trainingdata)
 		if err != nil {
@@ -97,4 +101,14 @@ func main() {
 	for !doneDB {
 		time.Sleep(1 * time.Minute)
 	}
+
+	fmt.Print("Saveing final vectors\n")
+	runTimer = true
+	go displayTimer()
+	err = SaveVectors(w2v.Vectors) // final save of the vectors. Includes non-updated vectors aswell incase any new words were added but not updated
+	if err != nil {
+		fmt.Printf("failed to save vectors: %v\n", err)
+	}
+	runTimer = false
+	fmt.Printf("\nFinnished!\n\nTotal run time: %v\n", time.Since(runningTime))
 }

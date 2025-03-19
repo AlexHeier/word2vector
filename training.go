@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"math"
-	"math/rand"
 	"sync"
 	"time"
 )
@@ -59,20 +58,8 @@ func (w2v *Word2Vec) UpdateVectors(target, context string, learningRate float64)
 	targetVector, targetExists := w2v.Vectors[target]
 	contextVector, contextExists := w2v.Vectors[context]
 
-	if !targetExists {
-		vector := make([]float64, vectorSize)
-		for i := 0; i < vectorSize; i++ {
-			vector[i] = rand.Float64() * 0.1
-		}
-		w2v.Vectors[target] = vector
-	}
-
-	if !contextExists {
-		vector := make([]float64, vectorSize)
-		for i := 0; i < vectorSize; i++ {
-			vector[i] = rand.Float64() * 0.1
-		}
-		w2v.Vectors[context] = vector
+	if !targetExists || !contextExists {
+		return 0
 	}
 
 	// Compute dot product (similarity score)
