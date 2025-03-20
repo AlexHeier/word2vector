@@ -12,6 +12,7 @@ import (
 // Save word embeddings using HDF5
 func SaveVectors(vectors map[string][]float64) error {
 	w2v.UpdatedVectors = map[string][]float64{}
+	w2v.M.Unlock()
 	// Convert all words and vectors into slices
 	var values []interface{}
 	var placeholders []string
@@ -157,6 +158,7 @@ func UpdateModelInDB() {
 			break
 		}
 
+		w2v.M.Lock()
 		err := SaveVectors(w2v.UpdatedVectors)
 		if err != nil {
 			fmt.Printf("failed to save vectors: %v\n", err)

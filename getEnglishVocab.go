@@ -30,14 +30,18 @@ func GetEnglishDictionary() error {
 		if word == "" {
 			continue
 		}
-		w2v.Vectors[word] = CreateVector()
-		w2v.Vocab = append(w2v.Vocab, word)
+		_, exists := w2v.Vectors[word]
+		if !exists {
+			w2v.Vectors[word] = CreateVector()
+			w2v.Vocab = append(w2v.Vocab, word)
+		}
+
 	}
 
 	if err := scanner.Err(); err != nil {
 		return err
 	}
-	fmt.Print("\n\nFetched dictionary from external source\n")
+	fmt.Printf("\n\nFetched dictionary from external source\nFound %v words\n", len(w2v.Vocab))
 
 	return nil
 }
