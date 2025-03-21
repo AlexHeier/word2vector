@@ -30,7 +30,13 @@ func main() {
 		return
 	}
 	runningTime := time.Now()
-	// Initialize Word2Vec model
+
+	// Get dictionary
+	fmt.Printf("Fetching the %v dictionary\n", language)
+	err = GetEnglishDictionary()
+	if err != nil {
+		fmt.Printf("Error fetching vocab: %v\n", err)
+	}
 
 	fmt.Print("Fetching vectors from the database\n")
 
@@ -42,14 +48,8 @@ func main() {
 	}
 
 	runTimer = false
-	fmt.Printf("\nFound %d words in the database\nFetching time: %v\n", len(w2v.Vocab), time.Since(runningTime))
+	fmt.Printf("Fetching time: %v\n", time.Since(runningTime))
 
-	if len(w2v.Vocab) == 0 { // If no vectors are found in the database, fetch the english dictionary
-		err = GetEnglishDictionary()
-		if err != nil {
-			fmt.Printf("Error fetching vocab: %v\n", err)
-		}
-	}
 	var totalWords int
 
 	runtime.GOMAXPROCS(runtime.NumCPU()) // max out all cores
@@ -63,9 +63,9 @@ func main() {
 
 		if downloadNewBooks {
 			deleteFolderContents(trainingdata)
-			errorCount := DownloadBook(first, last, trainingdata, "English") // Langaue written in english with capital first letter
+			errorCount := DownloadBook(first, last, trainingdata, language)
 			if errorCount > 0 {
-				fmt.Printf("\nError downloading %d books", errorCount)
+				fmt.Printf("\nError downloading %d books\n", errorCount)
 			}
 		}
 

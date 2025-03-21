@@ -17,6 +17,7 @@ func DownloadBook(startID, endID int, folderPath, language string) int {
 	}
 
 	errors := 0
+	differentLanguage := 0
 	for bookID := startID; bookID <= endID; bookID++ {
 		fmt.Printf("\rDownloading book %d/%d of total %d books", bookID, endID, endID-startID+1)
 
@@ -55,11 +56,11 @@ func DownloadBook(startID, endID int, folderPath, language string) int {
 		}
 
 		if er {
-			errors++
+			differentLanguage++
 		}
 	}
 
-	fmt.Printf("\nFound %v books with language %v\n", endID-startID+1-errors, language)
+	fmt.Printf("\nFound %v books with language %v,\nBooks in other languages %v\n", endID-startID+1-errors-differentLanguage, language, differentLanguage)
 
 	return errors
 }

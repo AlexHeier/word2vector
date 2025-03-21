@@ -105,8 +105,7 @@ func (w2v *Word2Vec) loadVectors() error {
 	defer rows.Close()
 
 	// Initialize the Vectors map and Vocab slice
-	w2v.Vectors = make(map[string][]float64)
-	w2v.Vocab = []string{}
+	vocab := []string{}
 
 	// Loop over the query results and populate the map and slice
 	for rows.Next() {
@@ -124,8 +123,10 @@ func (w2v *Word2Vec) loadVectors() error {
 
 		// Add the word to the vocabulary and the vector to the Vectors map
 		w2v.Vectors[word] = vector
-		w2v.Vocab = append(w2v.Vocab, word)
+		vocab = append(vocab, word)
 	}
+
+	fmt.Printf("Found %d words in the database\n", len(vocab))
 
 	// Check if there was an error during row iteration
 	if err := rows.Err(); err != nil {

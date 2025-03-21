@@ -30,11 +30,9 @@ func GetEnglishDictionary() error {
 		if word == "" {
 			continue
 		}
-		_, exists := w2v.Vectors[word]
-		if !exists {
-			w2v.Vectors[word] = CreateVector()
-			w2v.Vocab = append(w2v.Vocab, word)
-		}
+
+		w2v.Vectors[word] = CreateVector()
+		w2v.Vocab = append(w2v.Vocab, word)
 
 	}
 

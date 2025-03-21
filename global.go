@@ -10,6 +10,7 @@ import (
 const vectorSize int = 300 // The dementions of the vector
 const windowSize int = 8   // How many words to consider left and right
 const trainingdata string = "./trainingdata"
+const language string = "English" // Langaue written in english with capital first letter
 const downloadNewBooks bool = true
 const epochs int = 10
 const trainingRate float64 = 0.01
