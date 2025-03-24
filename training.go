@@ -25,8 +25,7 @@ func (w2v *Word2Vec) TrainModel(words []string, learningRate float64, epochs, wo
 			wg.Add(1)
 			go func(wordsSubset []string) {
 				defer wg.Done()
-				for i := range wordsSubset {
-					target := wordsSubset[i]
+				for i, target := range wordsSubset {
 					start := max(0, i-windowSize)
 					end := min(len(wordsSubset), i+windowSize)
 
@@ -45,8 +44,8 @@ func (w2v *Word2Vec) TrainModel(words []string, learningRate float64, epochs, wo
 		}
 		wg.Wait()
 
-		elapsedTime := time.Since(startTime)
-		fmt.Printf("Epoch %v out %v of took %v seconds and had a loss of %v\n", epoch+1, epochs, elapsedTime.Seconds(), totalLoss)
+		elapsedTime := time.Since(startTime).Round(time.Millisecond).Seconds() // Sexy way to get time in seconds with only 3 decimal places
+		fmt.Printf("Epoch %v out %v of took %v seconds and had a loss of %.3f\n", epoch+1, epochs, elapsedTime, totalLoss)
 	}
 }
 
@@ -70,13 +69,13 @@ func (w2v *Word2Vec) UpdateVectors(target, context string, learningRate float64)
 
 	// Compute probability using sigmoid
 	probability := sigmoid(dotProduct)
-	errorTerm := 1.0 - probability // Gradient of binary cross-entropy loss
+	bce := 1.0 - probability // binary cross-entropy
 
 	loss := -math.Log(probability)
 
 	// Update word vectors using gradient descent
 	for i := 0; i < vectorSize; i++ {
-		grad := learningRate * errorTerm
+		grad := learningRate * bce
 		targetVector[i] += grad * contextVector[i]
 		contextVector[i] += grad * targetVector[i]
 	}

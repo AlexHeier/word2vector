@@ -52,7 +52,7 @@ func main() {
 
 	var totalWords int
 
-	runtime.GOMAXPROCS(runtime.NumCPU()) // max out all cores
+	runtime.GOMAXPROCS(runtime.NumCPU() * 2)
 
 	for i := 0; i < loops; i++ {
 		loopTime := time.Now()
@@ -65,7 +65,7 @@ func main() {
 			deleteFolderContents(trainingdata)
 			errorCount := DownloadBook(first, last, trainingdata, language)
 			if errorCount > 0 {
-				fmt.Printf("\nError downloading %d books\n", errorCount)
+				fmt.Printf("Error downloading %d books\n", errorCount)
 			}
 		}
 

@@ -40,7 +40,6 @@ func (w2v *Word2Vec) preprocessText(folderPath string) (allWords []string, err e
 
 			line = strings.ReplaceAll(line, "\n", " ")
 			line = strings.ReplaceAll(line, "\r", " ")
-			line = strings.TrimSpace(line)
 			line = re.ReplaceAllString(line, "")
 			line = strings.ToLower(line)
 			line = strings.TrimSpace(line)

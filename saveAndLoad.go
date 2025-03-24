@@ -11,8 +11,8 @@ import (
 
 // Save word embeddings using HDF5
 func SaveVectors(vectors map[string][]float64) error {
-	w2v.UpdatedVectors = map[string][]float64{}
-	w2v.M.Unlock()
+
+	batchSize := 30000
 	// Convert all words and vectors into slices
 	var values []interface{}
 	var placeholders []string
@@ -44,8 +44,6 @@ func SaveVectors(vectors map[string][]float64) error {
 		_, err := DBCon.Exec(query, values...)
 		return err
 	}
-
-	batchSize := 30000 // PostgreSQL limit for number of parameters in a query
 
 	// Insert in smaller batches
 	for start := 0; start < len(values); start += batchSize {
@@ -160,7 +158,11 @@ func UpdateModelInDB() {
 		}
 
 		w2v.M.Lock()
-		err := SaveVectors(w2v.UpdatedVectors)
+		updated := w2v.UpdatedVectors
+		w2v.UpdatedVectors = make(map[string][]float64)
+		w2v.M.Unlock()
+
+		err := SaveVectors(updated)
 		if err != nil {
 			fmt.Printf("failed to save vectors: %v\n", err)
 		}
