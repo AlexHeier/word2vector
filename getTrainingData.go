@@ -44,7 +44,7 @@ func DownloadBook(startID, endID int, folderPath, language string) int {
 		}
 
 		if !strings.Contains(string(content), fmt.Sprintf("Language: %s", language)) {
-			errors++
+			differentLanguage++
 			continue
 		}
 
@@ -56,7 +56,7 @@ func DownloadBook(startID, endID int, folderPath, language string) int {
 		}
 
 		if er {
-			differentLanguage++
+			errors++
 		}
 	}
 
