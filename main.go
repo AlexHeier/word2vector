@@ -89,7 +89,7 @@ func main() {
 
 		result := findAnalogy("him", "man", "woman", w2v.Vectors, topN)
 		fmt.Printf("\nAnalogy Test (him - man + woman): %v", result)
-		fmt.Printf("\nTotal run time: %v\nEstimated time left: %v\n\n", time.Since(runningTime), time.Duration(time.Since(loopTime).Seconds()*float64(750-i)*float64(time.Second)))
+		fmt.Printf("\nTotal run time: %v\nEstimated time left: %v\n\n", time.Since(runningTime), time.Duration(time.Since(loopTime).Seconds()*float64(loops-1-i)*float64(time.Second)))
 
 		if i == 0 {
 			go UpdateModelInDB()

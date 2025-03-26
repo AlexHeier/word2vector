@@ -153,7 +153,7 @@ func parseVector(vectorStr string) []float64 {
 
 func UpdateModelInDB() {
 	for {
-		if w2v.UpdatedVectors == nil && doneMain {
+		if doneMain {
 			break
 		}
 
