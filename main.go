@@ -30,6 +30,7 @@ func main() {
 		return
 	}
 	runningTime := time.Now()
+	firstRun := true
 
 	// Get dictionary
 	fmt.Printf("Fetching the %v dictionary\n", language)
@@ -91,8 +92,9 @@ func main() {
 		fmt.Printf("\nAnalogy Test (him - man + woman): %v", result)
 		fmt.Printf("\nTotal run time: %v\nEstimated time left: %v\n\n", time.Since(runningTime), time.Duration(time.Since(loopTime).Seconds()*float64(loops-1-i)*float64(time.Second)))
 
-		if i == 0 {
+		if firstRun {
 			go UpdateModelInDB()
+			firstRun = false
 		}
 	}
 

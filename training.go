@@ -45,7 +45,7 @@ func (w2v *Word2Vec) TrainModel(words []string, learningRate float64, epochs, wo
 		wg.Wait()
 
 		elapsedTime := time.Since(startTime).Round(time.Millisecond).Seconds() // Sexy way to get time in seconds with only 3 decimal places
-		fmt.Printf("Epoch %v out %v of took %v and had a loss of %.3f\n", epoch+1, epochs, elapsedTime, totalLoss)
+		fmt.Printf("Epoch %v out %v of took %v seconds and had a loss of %.3f\n", epoch+1, epochs, elapsedTime, totalLoss)
 	}
 }
 

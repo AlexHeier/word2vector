@@ -29,18 +29,21 @@ func DownloadBook(startID, endID int, folderPath, language string) int {
 		resp, err := http.Get(url)
 		if err != nil {
 			er = true
+			continue
 		}
 		defer resp.Body.Close()
 
 		// Check if the request was successful
 		if resp.StatusCode != http.StatusOK {
 			er = true
+			continue
 		}
 
 		// Read the response body (the book content)
 		content, err := io.ReadAll(resp.Body)
 		if err != nil {
 			er = true
+			continue
 		}
 
 		if !strings.Contains(string(content), fmt.Sprintf("Language: %s", language)) {

@@ -53,8 +53,9 @@ func min(a, b int) int {
 func displayTimer() {
 	startTime := time.Now()
 	for runTimer {
-		fmt.Printf("\rTime Elapsed: %v", time.Since(startTime).Round(time.Millisecond).Seconds())
+		fmt.Printf("\rTime Elapsed: %v                  ", time.Since(startTime))
 		time.Sleep(1 * time.Second)
 	}
+	fmt.Print("\n")
 	runTimer = true
 }
